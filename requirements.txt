@@ -1,2 +1,3 @@
-aiogram<3.0
-environs~=8.0.0
+aiogram~=2.15
+environs~=9.3.4
+wakeonlan~=2.0.1
