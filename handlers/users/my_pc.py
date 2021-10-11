@@ -13,9 +13,9 @@ from keyboards.inline.my_pc import get_pc_keyboard
 @dp.message_handler(Command('on_pc'))
 async def on_pc(message: types.Message):
     data = [
-        {'name': 'comp_1', 'mac': '12313'},
-        {'name': 'comp_2', 'mac': '12313'},
-        {'name': 'comp_3', 'mac': '12313'}
+        {'name': 'comp_1', 'mac': 'A8-A1-59-25-B8-6A'},
+        {'name': 'comp_2', 'mac': 'E0-D5-5E-88-FD-AA'},
+        {'name': 'comp_3', 'mac': '0C-84-DC-8D-82-49'}
     ]
     await message.answer(f"Choose any of computers:", reply_markup=await get_pc_keyboard(data))
 
