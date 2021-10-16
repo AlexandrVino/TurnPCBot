@@ -24,7 +24,7 @@ async def on_pc(message: types.Message):
 async def on_pc_callback(call: types.CallbackQuery, callback_data: dict):
     await call.answer(cache_time=60)
     tag, name, mac = callback_data.values()
-    # send_magic_packet(mac)
+    send_magic_packet(mac)
     await call.message.answer(f'Computer <i><b>"{name}"</b></i> wake up')
 
 
