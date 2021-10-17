@@ -33,20 +33,6 @@ class DBSession:
         }
         self.pool = await asyncpg.create_pool(**await self.to_dict())
 
-    async def check(self, user_id: int) -> bool:
-        user = await self.pool.fetchval(self.SELECT_USER, user_id)
-        return True if user is not None else False
-
-    async def registration(self, user: aiogram.types.User) -> None:
-        reg_data = {
-            'chat_id': user.language_code,
-            'language_code': user.language_code,
-            'comps': []
-        }
-
-        if not self.check(reg_data['chat_id']):
-            await self.pool.execute(self.ADD_NEW_USER, *reg_data)
-
     async def get_user(self, *args):
         return await self.pool.fetchrow(self.COMMANDS['SELECT_USER'], *args)
 
@@ -55,6 +41,12 @@ class DBSession:
 
     async def update_user_comps(self, *args):
         return await self.pool.execute(self.COMMANDS['UPDATE_USER_COMPS'], *args)
+
+    async def get_user_comps(self, **kwargs):
+        user = await self.get_user(kwargs['chat_id'])
+        if user is None:
+            await self.add_user(*kwargs.values())
+        return user.get('comps') if user is not None and user.get('comps') is not None else '[]'
 
 
 async def create_db(database: DBSession):

@@ -32,17 +32,12 @@ async def on_pc(message: types.Message):
         await message.answer('Incorrect MAC address!')
         return await message.answer('Example: "/add_pc [0A-00-27-00-00-04]"\n"-" can be also ":", "." and other')
 
-    result = await db.get_user(message.from_user.id)
-    if result is not None:
-        user_pc = json.loads(result.get('comps'))
-    else:
-        reg_data = [message.from_user.values['id'], message.from_user.values['language_code'], []]
-        await db.add_user(*reg_data)
-        user_pc = []
+    user_pc = await db.get_user_comps(**{
+        'chat_id': message.from_user.values['id'],
+        'language_code': message.from_user.values['language_code'],
+        'comps': []})
 
-    if user_pc is None:
-        user_pc = []
-
+    user_pc = json.loads(user_pc)
     if any([item.get("mac") == data["mac"] for item in user_pc]):
         return await message.answer("This PC have already added")
 
