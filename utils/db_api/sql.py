@@ -36,8 +36,10 @@ class DBSession:
     async def get_user(self, *args):
         return await self.pool.fetchrow(self.COMMANDS['SELECT_USER'], *args)
 
-    async def add_user(self, *args):
-        return await self.pool.execute(self.COMMANDS['ADD_NEW_USER'], *args)
+    async def add_user(self, *args) -> None:
+        if not 2 <= len(args) <= 3:
+            return
+        await self.pool.execute(self.COMMANDS['ADD_NEW_USER'], *args)
 
     async def update_user_comps(self, *args):
         return await self.pool.execute(self.COMMANDS['UPDATE_USER_COMPS'], *args)

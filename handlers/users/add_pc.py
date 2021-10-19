@@ -27,20 +27,23 @@ async def on_pc(message: types.Message):
         data["mac"] = findall(search, data['mac'])[0]
 
         assert match(search, data['mac'])
+        data["ip"] = ''
 
-    except (IndexError, AssertionError):
+    except (IndexError, AssertionError, KeyError):
         await message.answer('Incorrect MAC address!')
-        return await message.answer('Example: "/add_pc [0A-00-27-00-00-04]"\n"-" can be also ":", "." and other')
+        return await message.answer(
+            'Example: "/add_pc mac=[0A-00-27-00-00-04] name=MyComputer"\n"-" can be also ":", "." and other')
 
     user_pc = await db.get_user_comps(**{
         'chat_id': message.from_user.values['id'],
         'language_code': message.from_user.values['language_code'],
-        'comps': []})
+        'comps': None})
 
     user_pc = json.loads(user_pc)
     if any([item.get("mac") == data["mac"] for item in user_pc]):
         return await message.answer("This PC have already added")
-
+    if any([item.get("name") == data["name"] for item in user_pc]):
+        return await message.answer("Please choose other name")
     user_pc += [data]
     user_pc = json.dumps(user_pc)
 
