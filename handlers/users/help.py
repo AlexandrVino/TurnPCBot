@@ -6,10 +6,17 @@ from loader import dp
 
 @dp.message_handler(CommandHelp())
 async def bot_help(message: types.Message):
-    text = ("List of commands: ",
-            "/start - Start dialog",
-            "/on_pc Display user's computers",
-            "/add_pc [0A-00-27-00-00-04] - Adding pc to user list",
-            "/help - Get bot skills")
+    """
+    :param message: aiogram.types.Message
+    :returns: message with bot skills
+    function, which will send bot skills
+    """
+    text = (
+        "List of commands: ",
+        "/start - Start dialog",
+        "/help - Get bot skills",
+        "/on_pc Display user's computers",
+        "/add_pc mac=[0A-00-27-00-00-04] name=MyComputer - Adding pc to user list"
+    )
 
     await message.answer("\n".join(text))

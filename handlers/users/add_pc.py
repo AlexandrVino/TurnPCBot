@@ -1,5 +1,3 @@
-import logging
-
 from aiogram import types
 from aiogram.dispatcher.filters import Command
 
@@ -7,13 +5,14 @@ from loader import dp, db
 
 from re import findall, match
 import json
-from utils.db_api.sql import create_pool
 
 
 @dp.message_handler(Command('add_pc'))
-async def on_pc(message: types.Message):
+async def add_pc(message: types.Message):
     """
-
+    :param message: aiogram.types.Message
+    :returns None or info about incorrect data:
+    function, which will be create sql database
     """
     try:
         search = '[0-9A-F]{2}.' * 5 + '[0-9A-F]{2}'
@@ -23,7 +22,6 @@ async def on_pc(message: types.Message):
 
         if len(data['mac']) == 12:
             data['mac'] = '-'.join([data['mac'][i:i + 2] for i in range(0, 12, 2)])
-
         data["mac"] = findall(search, data['mac'])[0]
 
         assert match(search, data['mac'])
@@ -40,12 +38,11 @@ async def on_pc(message: types.Message):
         'comps': None})
 
     user_pc = json.loads(user_pc)
-    if any([item.get("mac") == data["mac"] for item in user_pc]):
-        return await message.answer("This PC have already added")
-    if any([item.get("name") == data["name"] for item in user_pc]):
-        return await message.answer("Please choose other name")
+    if any([item.get("mac") == data["mac"] or item.get("name") == data["name"] for item in user_pc]):
+        return await message.answer("This PC/PC with this name have already added")
+
     user_pc += [data]
     user_pc = json.dumps(user_pc)
 
     await db.update_user_comps(user_pc, message.from_user.values['id'])
-    return await message.answer("Computer added successfully")
+    await message.answer("Computer added successfully")

@@ -1,7 +1,12 @@
-from aiogram import types
+from aiogram import types, Dispatcher
 
 
-async def set_default_commands(dp):
+async def set_default_commands(dp: Dispatcher):
+    """
+    :param dp: Dispatcher
+    :returns: None
+    function, which will reset bot command
+    """
     await dp.bot.set_my_commands(
         [
             types.BotCommand("start", "Launch bot"),
