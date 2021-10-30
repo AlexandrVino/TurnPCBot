@@ -1,8 +1,8 @@
--- Table: public.userinfo
+-- Table: public.users
 
--- DROP TABLE public.userinfo;
+-- DROP TABLE public.users;
 
-CREATE TABLE public.users
+CREATE TABLE if not exists public.users
 (
     chat_id       integer                                             NOT NULL,
     language_code character varying(255) COLLATE pg_catalog."default" NOT NULL,

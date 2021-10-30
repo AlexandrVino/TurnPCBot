@@ -9,8 +9,8 @@ from loader import dp, db
 from keyboards.inline.my_pc import get_pc_keyboard
 
 
-@dp.message_handler(Command('on_pc'))
-async def on_pc(message: types.Message):
+@dp.message_handler(Command('choose_pc'))
+async def choose_computer(message: types.Message):
     """
     :param message: aiogram.types.Message
     :returns: None

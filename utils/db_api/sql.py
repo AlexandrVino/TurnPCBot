@@ -60,11 +60,8 @@ class DBSession(DBData):
         with open(self.path + 'db/create_table.sql', 'r') as sql_file:
             sql_create_table = sql_file.read()
         conn: asyncpg.Connection = await asyncpg.connect(**await self.to_dict())
-        try:
-            await conn.execute(sql_create_table)
-            logging.info('Table has been created successfully.')
-        except asyncpg.exceptions.DuplicateTableError as err:
-            logging.info(err)
+        await conn.execute(sql_create_table)
+        logging.info('Table has been created successfully.')
         await conn.close()
 
     async def get_user(self, *args) -> asyncpg.Record:
