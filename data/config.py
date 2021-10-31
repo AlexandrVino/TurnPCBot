@@ -1,5 +1,10 @@
 from environs import Env
 
+"""
+You should reset bot name if your bot launch on your company server; 
+else you should globally turn server from https://github.com/AlexandrVino/TurnOnPcBotServer.git) 
+"""
+
 env = Env()
 env.read_env()
 
@@ -13,3 +18,4 @@ DB_HOST = env.str("DB_HOST")  # Taking database host
 DB_PORT = env.int("DB_PORT")  # Taking database port
 I18N_DOMAIN = ''  #
 LOCALES_DIR = ''  #
+BOT_NAME = 'TurnOnPcBot'

@@ -1,12 +1,16 @@
 import json
+import logging
 
 from aiogram import types
 from aiogram.dispatcher.filters import Command
 from wakeonlan import send_magic_packet
 
+from data.config import BOT_NAME
 from keyboards.inline.callback_datas import my_pc_callback
 from loader import dp, db
 from keyboards.inline.my_pc import get_pc_keyboard
+
+from utils.misc.client import send_packet
 
 
 @dp.message_handler(Command('choose_pc'))
@@ -35,8 +39,17 @@ async def on_pc_callback(call: types.CallbackQuery, callback_data: dict):
 
     await call.answer(cache_time=60)
     tag, name, mac, ip = callback_data.values()
-    send_magic_packet(mac)
-    await call.message.answer(f'Computer <i><b>"{name}"</b></i> wake up')
+    logging.info(callback_data)
+
+    if BOT_NAME == 'TurnOnPcBot':
+        host = 'web'  # Write your company server address (Example: 127.0.0.1:5000)
+        data = await send_packet(url=f'http://{host}/wake_up', data={'mac': mac})
+        if data:
+            await call.message.answer(f'Computer <i><b>"{name}"</b></i> wake up')
+        else:
+            logging.error("some err")
+    else:
+        send_magic_packet(mac)
 
 
 @dp.callback_query_handler(text='cancel')

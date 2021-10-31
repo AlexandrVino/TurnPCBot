@@ -2,3 +2,4 @@ aiogram
 environs
 wakeonlan
 asyncpg
+requests
