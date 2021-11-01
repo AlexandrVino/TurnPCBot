@@ -1,3 +1,4 @@
-ADD_NEW_USER==INSERT INTO public.users(chat_id, language_code, comps) VALUES ($1, $2, $3) RETURNING id;
+ADD_NEW_USER==INSERT INTO public.users(chat_id, language_code, computers, server) VALUES ($1, $2, $3, $4) RETURNING id;
 SELECT_USER==SELECT * FROM public.users WHERE chat_id = $1;
-UPDATE_USER_COMPS==UPDATE public.users SET comps = $1 WHERE chat_id = $2;
+UPDATE_USER_COMPS==UPDATE public.users SET computers = $1 WHERE chat_id = $2;
+UPDATE_USER_SERVER==UPDATE public.users SET server = $1 WHERE chat_id = $2;

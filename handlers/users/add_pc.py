@@ -11,7 +11,7 @@ import json
 
 
 @dp.message_handler(Command('add_pc'))
-async def add_pc(message: types.Message):
+async def add_pc(message: types.Message) -> types.Message.answer:
     """
     :param message: aiogram.types.Message
     :returns None or info about incorrect data:
@@ -19,11 +19,11 @@ async def add_pc(message: types.Message):
     """
 
     await AddPcForm.name.set()
-    await message.answer("Please write computer name")
+    return await message.answer("Please write computer name")
 
 
 @dp.message_handler(state='*', commands='cancel')
-async def cancel_handler(message: types.Message, state: FSMContext):
+async def cancel_handler(message: types.Message, state: FSMContext) -> types.Message.answer:
     """
     Allow user to cancel any action
     """
@@ -32,13 +32,15 @@ async def cancel_handler(message: types.Message, state: FSMContext):
         return
 
     await state.finish()
-    await message.reply('You cancelled this action.')
+    return await message.answer('You cancelled this action.')
 
 
 @dp.message_handler(state=AddPcForm.name)
-async def process_name(message: types.Message, state: FSMContext):
+async def process_name(message: types.Message, state: FSMContext) -> types.Message.answer:
     """
-    Process user name
+    Process computer name
+    :param message: aiogram.types.Message - message, which send user 
+    :param state: aiogram.dispatcher.FSMContext - storage with data
     """
     computer_name = message.text
     user_pc = await db.get_user_comps(**{
@@ -55,13 +57,13 @@ async def process_name(message: types.Message, state: FSMContext):
         computer_data['name'] = message.text
 
     await AddPcForm.mac_address.set()
-    await message.answer("Please write computer mac address")
+    return await message.answer("Please write computer mac address")
 
 
 @dp.message_handler(state=AddPcForm.mac_address)
-async def process_mac(message: types.Message, state: FSMContext):
+async def process_mac(message: types.Message, state: FSMContext) -> types.Message.answer:
     """
-    Process user name
+    Process computer mac address
     """
 
     message_text = message.text
@@ -84,13 +86,13 @@ async def process_mac(message: types.Message, state: FSMContext):
         computer_data['mac'] = message_text
 
     await AddPcForm.ip_address.set()
-    await message.answer("Please write computer ip address")
+    return await message.answer("Please write computer ip address")
 
 
 @dp.message_handler(state=AddPcForm.ip_address)
-async def process_ip(message: types.Message, state: FSMContext):
+async def process_ip(message: types.Message, state: FSMContext) -> types.Message.answer:
     """
-    Process user name
+    Process computer ip address (on LAN)
     """
     message_text = message.text
 
@@ -115,7 +117,7 @@ async def process_ip(message: types.Message, state: FSMContext):
         computer_data['ip'] = message.text
         user_pc += [{key: value for key, value in computer_data._data.items() if key != 'user_pc'}]
         user_pc = json.dumps(user_pc)
-
-    await db.update_user_comps(user_pc, message.from_user.values['id'])
-    await message.reply("Computer added successfully")
+    await db.update_user_computers(user_pc, message.from_user.values['id'])
     await state.finish()
+
+    return await message.answer("Computer added successfully")

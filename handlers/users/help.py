@@ -15,7 +15,9 @@ async def bot_help(message: types.Message):
         "List of commands: ",
         "/start - Start dialog",
         "/help - Get bot skills",
-        "/on_pc Display user's computers",
+        "/host reset you server address",
+        "/me return info about your account",
+        "/choose_pc Display user's computers",
         "/add_pc mac=[0A-00-27-00-00-04] name=MyComputer - Adding pc to user list"
     )
 

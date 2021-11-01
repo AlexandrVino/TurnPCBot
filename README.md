@@ -71,7 +71,8 @@ If you want to use your bot with my code:
    # 
    BOT_NAME = 'TurnOnPcBot'  # Your bot name here (can be like "")
    ```
-else:
+<div id="server">else:</div>
+
 1. Clone the repo
    ```sh
    git clone https://github.com/AlexandrVino/TurnOnPcBotServer.git

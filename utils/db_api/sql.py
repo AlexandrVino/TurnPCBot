@@ -78,17 +78,28 @@ class DBSession(DBData):
         :returns asyncpg.Record:
         function, which will be register user
         """
-        if not 2 <= len(args) <= 3:
+        if not 2 <= len(args) <= 4:
             return
         await self.pool.execute(self.COMMANDS['ADD_NEW_USER'], *args)
 
-    async def update_user_comps(self, *args) -> asyncpg.Record:
+    async def update_user_computers(self, *args) -> asyncpg.Record:
         """
         :param args: list with user data (id, user_ps)
         :returns asyncpg.Record:
         function, which will be updating user pc
         """
         return await self.pool.execute(self.COMMANDS['UPDATE_USER_COMPS'], *args)
+
+    async def update_user_server(self, **kwargs) -> asyncpg.Record:
+        """
+        :param kwargs: dict with with user data (id, user_ps)
+        :returns asyncpg.Record:
+        function, which will be updating user pc
+        """
+        user = await self.get_user(kwargs['chat_id'])
+        if user is None:
+            return await self.add_user(*kwargs.values())
+        return await self.pool.execute(self.COMMANDS['UPDATE_USER_SERVER'], *[kwargs['server'], kwargs['chat_id']])
 
     async def get_user_comps(self, **kwargs) -> str:
         """
