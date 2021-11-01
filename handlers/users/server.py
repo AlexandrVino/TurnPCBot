@@ -57,12 +57,18 @@ async def process_protocol(message: types.Message, state: FSMContext) -> types.M
             await db.update_user_server(**kwargs)
             await state.finish()
             return await message.answer("Server added successfully")
-        except BaseException as err:
-            return await message.answer(
-                "Error\n It can be called because of:\n"
+        except BaseException:
+
+            mess = (
+                "Error\nIt can be called because of:\n"
                 "1. Incorrect server address\n"
                 "2. Server discard connection\n"
-                "3. Incorrect answer (see https://github.com/AlexandrVino/TurnPCBot/blob/master/README.md#getting-started)")
+                "3. Incorrect answer "
+                "(<a href='https://github.com/AlexandrVino/TurnPCBot/blob/master/README.md#server'>"
+                "see it for more info</a>)"
+            )
+            
+            return await message.answer(mess, disable_web_page_preview=True)
     if protocol not in accept_protocols:
         return await message.answer("Protocol must be http or https")
 

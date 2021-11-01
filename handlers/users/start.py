@@ -13,6 +13,6 @@ async def bot_start(message: types.Message):
     """
     result = await db.get_user(message.from_user.values['id'])
     if result is None:
-        data = [message.from_user.id, message.from_user.language_code, None]
+        data = [message.from_user.id, message.from_user.language_code, None, None]
         await db.add_user(*data)
     await message.answer(f"Hi, {message.from_user.full_name}!")

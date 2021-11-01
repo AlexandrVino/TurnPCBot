@@ -20,7 +20,7 @@ async def choose_computer(message: types.Message):
     :returns: None
     """
 
-    data = await db.get_user_comps(chat_id=message.from_user.id)
+    data = await db.get_user_computers(chat_id=message.from_user.id)
     data = json.loads(data)
     if any(data):
         await message.answer(f"Choose any of computers:", reply_markup=await get_pc_keyboard(data))

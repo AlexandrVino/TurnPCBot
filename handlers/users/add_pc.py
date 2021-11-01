@@ -43,10 +43,12 @@ async def process_name(message: types.Message, state: FSMContext) -> types.Messa
     :param state: aiogram.dispatcher.FSMContext - storage with data
     """
     computer_name = message.text
-    user_pc = await db.get_user_comps(**{
+    user_pc = await db.get_user_computers(**{
         'chat_id': message.from_user.values['id'],
         'language_code': message.from_user.values['language_code'],
-        'comps': None})
+        'computers': None,
+        'server': None
+    })
 
     user_pc = json.loads(user_pc)
     if any([item.get("name") == computer_name for item in user_pc]):
@@ -106,9 +108,10 @@ async def process_ip(message: types.Message, state: FSMContext) -> types.Message
     kwargs = {
         'chat_id': message.from_user.values['id'],
         'language_code': message.from_user.values['language_code'],
-        'comps': None
+        'computers': None,
+        'server': None
     }
-    user_pc = await db.get_user_comps(**kwargs)
+    user_pc = await db.get_user_computers(**kwargs)
     user_pc = json.loads(user_pc)
 
     async with state.proxy() as computer_data:

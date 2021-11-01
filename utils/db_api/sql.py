@@ -101,7 +101,7 @@ class DBSession(DBData):
             return await self.add_user(*kwargs.values())
         return await self.pool.execute(self.COMMANDS['UPDATE_USER_SERVER'], *[kwargs['server'], kwargs['chat_id']])
 
-    async def get_user_comps(self, **kwargs) -> str:
+    async def get_user_computers(self, **kwargs) -> str:
         """
         :param kwargs: dict with user data (id, language and etc)
         :returns asyncpg.Record:
@@ -110,7 +110,18 @@ class DBSession(DBData):
         user = await self.get_user(kwargs['chat_id'])
         if user is None:
             await self.add_user(*kwargs.values())
-        return user.get('comps') if user is not None and user.get('comps') is not None else '[]'
+        return user.get('computers') if user is not None and user.get('computers') is not None else '[]'
+
+    async def get_user_info(self, **kwargs) -> asyncpg.Record:
+        """
+        :param kwargs: dict with user data (id, language and etc)
+        :returns asyncpg.Record:
+        function, which will return user pc
+        """
+        user = await self.get_user(kwargs['chat_id'])
+        if user is None:
+            await self.add_user(*kwargs.values())
+        return await self.get_user(kwargs['chat_id'])
 
 
 async def create_db(database: DBSession):
