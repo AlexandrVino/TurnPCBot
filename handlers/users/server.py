@@ -1,17 +1,15 @@
-import logging
-
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
-from states.add_server import *
-from loader import dp, db
 from requests import get
-from re import findall, match
-import json
+
+from loader import dp, db
+from states.add_server import *
+from utils.misc.get_dict import get_dict
 
 
 @dp.message_handler(Command('set_server'))
-async def add_pc(message: types.Message) -> types.Message.answer:
+async def set_server(message: types.Message) -> types.Message.answer:
     """
     :param message: aiogram.types.Message
     :returns None or info about incorrect data:
@@ -20,19 +18,6 @@ async def add_pc(message: types.Message) -> types.Message.answer:
 
     await AddServerForm.protocol.set()
     return await message.answer("Please write server protocol (Example: http, https) or server address")
-
-
-@dp.message_handler(state='*', commands='cancel')
-async def cancel_handler(message: types.Message, state: FSMContext) -> types.Message.answer:
-    """
-    Allow user to cancel any action
-    """
-    current_state = await state.get_state()
-    if current_state is None:
-        return
-
-    await state.finish()
-    return await message.answer('You cancelled this action.')
 
 
 @dp.message_handler(state=AddServerForm.protocol)
@@ -48,12 +33,7 @@ async def process_protocol(message: types.Message, state: FSMContext) -> types.M
         try:
             data = get(protocol + '/try_connect', json={"message": 'try connect'})
             assert data.json()['status'] == 200
-            kwargs = {
-                'chat_id': message.from_user.values['id'],
-                'language_code': message.from_user.values['language_code'],
-                'computers': None,
-                'server': protocol
-            }
+            kwargs = await get_dict(**message.from_user.values, server=protocol)
             await db.update_user_server(**kwargs)
             await state.finish()
             return await message.answer("Server added successfully")
@@ -67,7 +47,7 @@ async def process_protocol(message: types.Message, state: FSMContext) -> types.M
                 "(<a href='https://github.com/AlexandrVino/TurnPCBot/blob/master/README.md#server'>"
                 "see it for more info</a>)"
             )
-            
+
             return await message.answer(mess, disable_web_page_preview=True)
     if protocol not in accept_protocols:
         return await message.answer("Protocol must be http or https")
@@ -80,7 +60,7 @@ async def process_protocol(message: types.Message, state: FSMContext) -> types.M
 
 
 @dp.message_handler(state=AddServerForm.hostname)
-async def process_mac(message: types.Message, state: FSMContext) -> types.Message.answer:
+async def process_hostname(message: types.Message, state: FSMContext) -> types.Message.answer:
     """
     Process computer mac address
     """
@@ -95,7 +75,7 @@ async def process_mac(message: types.Message, state: FSMContext) -> types.Messag
 
 
 @dp.message_handler(state=AddServerForm.port)
-async def process_ip(message: types.Message, state: FSMContext) -> types.Message.answer:
+async def process_port(message: types.Message, state: FSMContext) -> types.Message.answer:
     """
     Process computer ip address (on LAN)
     """
@@ -103,13 +83,8 @@ async def process_ip(message: types.Message, state: FSMContext) -> types.Message
 
     async with state.proxy() as server_data:
         server_data['port'] = port
-        kwargs = {
-            'chat_id': message.from_user.values['id'],
-            'language_code': message.from_user.values['language_code'],
-            'computers': None,
-            'server': '{}://{}:{}'.format(*server_data._data.values())
-        }
-
+        kwargs = await get_dict(**message.from_user.values, server='{}://{}:{}'.format(*server_data._data.values()))
+    await db.update_user_server(**kwargs)
     await db.update_user_server(**kwargs)
     await state.finish()
 

@@ -1,7 +1,8 @@
+import asyncio
+import json
+import logging
 from dataclasses import dataclass
 
-import asyncio
-import logging
 import asyncpg
 
 # set logging format
@@ -28,9 +29,12 @@ class DBSession(DBData):
         super(DBSession, self).__init__(**kwargs)
         self.pool = None
         self.COMMANDS: dict = {}
-        self.extra_attributes = ['path', 'COMMANDS', 'pool', 'extra_attributes']
+        self.extra_attributes = ['path', 'COMMANDS', 'pool', 'extra_attributes', 'columns']
+        self.columns = ['chat_id', 'language_code', 'computers', 'server']
 
-    async def to_dict(self, extra_keys=[]) -> dict:
+    async def to_dict(self, extra_keys=None) -> dict:
+        if extra_keys is None:
+            extra_keys = []
         return {key: value for key, value in self.__dict__.items() if key not in self.extra_attributes + extra_keys}
 
     async def start(self):
@@ -64,42 +68,36 @@ class DBSession(DBData):
         logging.info('Table has been created successfully.')
         await conn.close()
 
-    async def get_user(self, *args) -> asyncpg.Record:
+    async def add_user(self, **kwargs) -> None:
         """
-        :param args: list with user data (id)
-        :returns asyncpg.Record:
-        function, which will be return user by id
-        """
-        return await self.pool.fetchrow(self.COMMANDS['SELECT_USER'], *args)
-
-    async def add_user(self, *args) -> asyncpg.Record:
-        """
-        :param args: list with user data (id, language)
+        :param kwargs: list with user data (id, language)
         :returns asyncpg.Record:
         function, which will be register user
         """
-        if not 2 <= len(args) <= 4:
-            return
-        await self.pool.execute(self.COMMANDS['ADD_NEW_USER'], *args)
+        await self.pool.execute(self.COMMANDS['ADD_NEW_USER'], *kwargs.values())
 
-    async def update_user_computers(self, *args) -> asyncpg.Record:
+    async def get_user(self, chat_id: int) -> asyncpg.Record:
         """
-        :param args: list with user data (id, user_ps)
+        :param chat_id: user id
         :returns asyncpg.Record:
-        function, which will be updating user pc
+        function, which will be return user by id
         """
-        return await self.pool.execute(self.COMMANDS['UPDATE_USER_COMPS'], *args)
+        return await self.pool.fetchrow(self.COMMANDS['SELECT_USER'], chat_id)
 
-    async def update_user_server(self, **kwargs) -> asyncpg.Record:
-        """
-        :param kwargs: dict with with user data (id, user_ps)
-        :returns asyncpg.Record:
-        function, which will be updating user pc
-        """
+    async def get_user_or_create(self, **kwargs):
         user = await self.get_user(kwargs['chat_id'])
         if user is None:
-            return await self.add_user(*kwargs.values())
-        return await self.pool.execute(self.COMMANDS['UPDATE_USER_SERVER'], *[kwargs['server'], kwargs['chat_id']])
+            await self.add_user(**kwargs)
+            user = await self.get_user(kwargs['chat_id'])
+        return user
+
+    async def update_user_computers(self, **kwargs) -> asyncpg.Record:
+        """
+        :param kwargs: dict with user data (id, user_pc)
+        :returns asyncpg.Record:
+        function, which will be updating user pc
+        """
+        return await self.pool.execute(self.COMMANDS['UPDATE_USER_COMPS'], kwargs['computers'], kwargs['chat_id'])
 
     async def get_user_computers(self, **kwargs) -> str:
         """
@@ -107,21 +105,39 @@ class DBSession(DBData):
         :returns asyncpg.Record:
         function, which will return user pc
         """
-        user = await self.get_user(kwargs['chat_id'])
-        if user is None:
-            await self.add_user(*kwargs.values())
+        user = await self.get_user_or_create(**kwargs)
         return user.get('computers') if user is not None and user.get('computers') is not None else '[]'
 
-    async def get_user_info(self, **kwargs) -> asyncpg.Record:
+    async def delete_user_computer(self, **kwargs) -> asyncpg.Record:
         """
         :param kwargs: dict with user data (id, language and etc)
         :returns asyncpg.Record:
         function, which will return user pc
         """
-        user = await self.get_user(kwargs['chat_id'])
-        if user is None:
-            await self.add_user(*kwargs.values())
+        user_pc: dict = json.loads(await self.get_user_computers(**kwargs))
+        if user_pc.get(kwargs['name']) is not None:
+            del user_pc[kwargs['name']]
+            await self.update_user_computers(**{'chat_id': kwargs['chat_id'], 'computers': json.dumps(user_pc)})
+
         return await self.get_user(kwargs['chat_id'])
+
+    async def update_user_server(self, **kwargs) -> asyncpg.Record:
+        """
+        :param kwargs: dict with with user data (id, user_ps)
+        :returns asyncpg.Record:
+        function, which will be updating user pc
+        """
+        await self.get_user_or_create(**kwargs)
+        return await self.pool.execute(self.COMMANDS['UPDATE_USER_SERVER'], *[kwargs['server'], kwargs['chat_id']])
+
+    async def get_user_server(self, **kwargs) -> str:
+        """
+        :param kwargs: dict with with user data (id, user_ps)
+        :returns asyncpg.Record:
+        function, which will be updating user pc
+        """
+        user = await self.get_user_or_create(**kwargs)
+        return user.get('server') if user.get('server') is not None else ''
 
 
 async def create_db(database: DBSession):

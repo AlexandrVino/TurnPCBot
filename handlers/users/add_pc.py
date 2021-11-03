@@ -1,13 +1,14 @@
+import json
 import logging
+from re import findall
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
-from states.add_computer import *
-from loader import dp, db
 
-from re import findall, match
-import json
+from loader import dp, db
+from states.computer import *
+from utils.misc.get_dict import get_dict
 
 
 @dp.message_handler(Command('add_pc'))
@@ -43,12 +44,8 @@ async def process_name(message: types.Message, state: FSMContext) -> types.Messa
     :param state: aiogram.dispatcher.FSMContext - storage with data
     """
     computer_name = message.text
-    user_pc = await db.get_user_computers(**{
-        'chat_id': message.from_user.values['id'],
-        'language_code': message.from_user.values['language_code'],
-        'computers': None,
-        'server': None
-    })
+    kwargs = await get_dict(**message.from_user.values)
+    user_pc = await db.get_user_computers(**kwargs)
 
     user_pc = json.loads(user_pc)
     if any([item.get("name") == computer_name for item in user_pc]):
@@ -105,12 +102,7 @@ async def process_ip(message: types.Message, state: FSMContext) -> types.Message
     except AssertionError:
         await message.answer('Incorrect IP address!\nExample: 192.168.255.255')
 
-    kwargs = {
-        'chat_id': message.from_user.values['id'],
-        'language_code': message.from_user.values['language_code'],
-        'computers': None,
-        'server': None
-    }
+    kwargs = await get_dict(**message.from_user.values)
     user_pc = await db.get_user_computers(**kwargs)
     user_pc = json.loads(user_pc)
 
@@ -120,7 +112,8 @@ async def process_ip(message: types.Message, state: FSMContext) -> types.Message
         computer_data['ip'] = message.text
         user_pc += [{key: value for key, value in computer_data._data.items() if key != 'user_pc'}]
         user_pc = json.dumps(user_pc)
-    await db.update_user_computers(user_pc, message.from_user.values['id'])
+    kwargs['computers'] = user_pc
+    await db.update_user_computers(**kwargs)
     await state.finish()
 
     return await message.answer("Computer added successfully")
