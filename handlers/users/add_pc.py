@@ -14,40 +14,27 @@ from utils.misc.get_dict import get_dict
 @dp.message_handler(Command('add_pc'))
 async def add_pc(message: types.Message) -> types.Message.answer:
     """
-    :param message: aiogram.types.Message
-    :returns None or info about incorrect data:
-    function, which will be create sql database
+    :param message: aiogram.types.Message - user message
+    :returns: types.Message.answer
+    function, which will start add_pc state and ask computer name
     """
 
     await AddPcForm.name.set()
     return await message.answer("Please write computer name")
 
 
-@dp.message_handler(state='*', commands='cancel')
-async def cancel_handler(message: types.Message, state: FSMContext) -> types.Message.answer:
-    """
-    Allow user to cancel any action
-    """
-    current_state = await state.get_state()
-    if current_state is None:
-        return
-
-    await state.finish()
-    return await message.answer('You cancelled this action.')
-
-
 @dp.message_handler(state=AddPcForm.name)
 async def process_name(message: types.Message, state: FSMContext) -> types.Message.answer:
     """
     Process computer name
-    :param message: aiogram.types.Message - message, which send user 
+    :param message: aiogram.types.Message - user message - message, which send user 
     :param state: aiogram.dispatcher.FSMContext - storage with data
+    :return: types.Message.answer
+    function, which will ask computer mac address
     """
     computer_name = message.text
-    kwargs = await get_dict(**message.from_user.values)
-    user_pc = await db.get_user_computers(**kwargs)
+    user_pc = json.loads(await db.get_user_computers(**await get_dict(**message.from_user.values)))
 
-    user_pc = json.loads(user_pc)
     if any([item.get("name") == computer_name for item in user_pc]):
         return await message.answer("PC with this name have already added")
 
@@ -62,7 +49,11 @@ async def process_name(message: types.Message, state: FSMContext) -> types.Messa
 @dp.message_handler(state=AddPcForm.mac_address)
 async def process_mac(message: types.Message, state: FSMContext) -> types.Message.answer:
     """
-    Process computer mac address
+    Process computer name
+    :param message: aiogram.types.Message - user message - message, which send user
+    :param state: aiogram.dispatcher.FSMContext - storage with data
+    :return: types.Message.answer
+    function, which will ask computer ip address
     """
 
     message_text = message.text
@@ -91,7 +82,11 @@ async def process_mac(message: types.Message, state: FSMContext) -> types.Messag
 @dp.message_handler(state=AddPcForm.ip_address)
 async def process_ip(message: types.Message, state: FSMContext) -> types.Message.answer:
     """
-    Process computer ip address (on LAN)
+    Process computer name
+    :param message: aiogram.types.Message - user message - message, which send user
+    :param state: aiogram.dispatcher.FSMContext - storage with data
+    :return: types.Message.answer
+    function, which will add computer to database
     """
     message_text = message.text
 

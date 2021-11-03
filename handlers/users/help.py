@@ -7,7 +7,7 @@ from loader import dp
 @dp.message_handler(CommandHelp())
 async def bot_help(message: types.Message):
     """
-    :param message: aiogram.types.Message
+    :param message: aiogram.types.Message - user message
     :returns: message with bot skills
     function, which will send bot skills
     """

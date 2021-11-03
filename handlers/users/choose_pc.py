@@ -15,27 +15,28 @@ from utils.misc.get_dict import get_dict
 
 
 @dp.message_handler(Command('choose_pc'))
-async def choose_computer(message: types.Message):
+async def choose_computer(message: types.Message) -> types.Message.answer:
     """
-    :param message: aiogram.types.Message
-    :returns: None
+    :param message: aiogram.types.Message - user message
+    :returns: types.Message.answer
+    Allow user to cancel any action
     """
 
     data = await db.get_user_computers(chat_id=message.from_user.id)
     data = json.loads(data)
     if any(data):
-        await message.answer(f"Choose any of computers:", reply_markup=await get_pc_keyboard(data, callback='add'))
+        return await message.answer(f"Choose any of computers:", reply_markup=await get_pc_keyboard(data, callback='add'))
     else:
-        await message.answer(f"You haven't any computers yet")
+        return await message.answer(f"You haven't any computers yet")
 
 
 @dp.callback_query_handler(add_pc_callback.filter())
-async def on_pc_callback(call: types.CallbackQuery, callback_data: dict):
+async def on_pc_callback(call: types.CallbackQuery, callback_data: dict) -> None:
     """
-    :param call: aiogram.types.CallbackQuery
+    :param call: aiogram.types.CallbackQuery - callback (button which push user)
     :param callback_data: dict
-    :returns: None
-    function, which will wake pc
+    :returns: types.Message.answer
+    function, which will wake up computer
     """
 
     await call.answer(cache_time=60)
