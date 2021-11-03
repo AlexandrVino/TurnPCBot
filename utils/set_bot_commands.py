@@ -13,7 +13,9 @@ async def set_default_commands(dp: Dispatcher):
             types.BotCommand("help", "Display help"),
             types.BotCommand("get_info", "Get info about your account"),
             types.BotCommand("set_server", "Reset you server address"),
-            types.BotCommand("choose_pc", "Display user's computers"),
+            types.BotCommand("delete_pc", "Display user's computers for delete"),
+            types.BotCommand("choose_pc", "Display user's computers for wake up"),
             types.BotCommand("add_pc", "Adding pc to user list"),
+            types.BotCommand("cancel", "Cancel any action"),
         ]
     )

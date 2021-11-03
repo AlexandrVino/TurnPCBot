@@ -17,7 +17,9 @@ async def bot_help(message: types.Message):
         "/help - Get bot skills",
         "/set_server reset you server address",
         "/get_info return info about your account",
-        "/choose_pc Display user's computers",
+        "/delete_pc Display user's computers for delete",
+        "/choose_pc Display user's computers for wake up",
+        "/cancel Cancel any action",
         "/add_pc - Adding pc to user list"
     )
 
