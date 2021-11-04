@@ -1,3 +1,8 @@
+"""
+This is configuration file
+You should rename env-example.env to .env and put in it your data
+"""
+
 from environs import Env
 
 """

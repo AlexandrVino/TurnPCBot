@@ -1,5 +1,4 @@
 import json
-import logging
 from re import findall
 
 from aiogram import types
@@ -26,7 +25,6 @@ async def add_pc(message: types.Message) -> types.Message.answer:
 @dp.message_handler(state=AddPcForm.name)
 async def process_name(message: types.Message, state: FSMContext) -> types.Message.answer:
     """
-    Process computer name
     :param message: aiogram.types.Message - user message - message, which send user 
     :param state: aiogram.dispatcher.FSMContext - storage with data
     :return: types.Message.answer
@@ -49,7 +47,6 @@ async def process_name(message: types.Message, state: FSMContext) -> types.Messa
 @dp.message_handler(state=AddPcForm.mac_address)
 async def process_mac(message: types.Message, state: FSMContext) -> types.Message.answer:
     """
-    Process computer name
     :param message: aiogram.types.Message - user message - message, which send user
     :param state: aiogram.dispatcher.FSMContext - storage with data
     :return: types.Message.answer
@@ -82,7 +79,6 @@ async def process_mac(message: types.Message, state: FSMContext) -> types.Messag
 @dp.message_handler(state=AddPcForm.ip_address)
 async def process_ip(message: types.Message, state: FSMContext) -> types.Message.answer:
     """
-    Process computer name
     :param message: aiogram.types.Message - user message - message, which send user
     :param state: aiogram.dispatcher.FSMContext - storage with data
     :return: types.Message.answer

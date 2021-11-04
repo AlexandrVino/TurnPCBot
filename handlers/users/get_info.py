@@ -12,7 +12,7 @@ async def get_info(message: types.Message) -> types.Message.answer:
     """
     :param message: aiogram.types.Message - user message
     :returns None or info about incorrect data:
-    function, which will be create sql database
+    function, which will return info about user
     """
 
     user_data = await db.get_user_or_create(**await get_dict(**message.from_user.values))
@@ -31,6 +31,7 @@ async def get_info(message: types.Message) -> types.Message.answer:
         comps = "You haven't any computer yet"
 
     mess = (
+        f"Id: {message.from_user.id}\n"
         f"Username: {message.from_user.username}\n"
         f"Language: {message.from_user.language_code}\n"
         f"Computers: {comps}\n"

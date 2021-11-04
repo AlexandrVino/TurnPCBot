@@ -29,7 +29,7 @@ async def choose_computer(message: types.Message):
 @dp.callback_query_handler(delete_pc_callback.filter())
 async def on_pc_callback(call: types.CallbackQuery, callback_data: dict):
     """
-    param call: aiogram.types.CallbackQuery - callback (button which push user)
+    :param call: aiogram.types.CallbackQuery - callback (button which push user)
     :param callback_data: dict
     :returns: None
     function, which will delete pc

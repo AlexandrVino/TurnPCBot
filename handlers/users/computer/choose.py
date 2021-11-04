@@ -34,23 +34,33 @@ async def choose_computer(message: types.Message) -> types.Message.answer:
 async def on_pc_callback(call: types.CallbackQuery, callback_data: dict) -> None:
     """
     :param call: aiogram.types.CallbackQuery - callback (button which push user)
-    :param callback_data: dict
+    :param callback_data: dict - data about computer
     :returns: types.Message.answer
     function, which will wake up computer
     """
 
     await call.answer(cache_time=60)
     _, name, mac, _ = callback_data.values()
-    logging.info(callback_data)
 
     if BOT_NAME == 'TurnOnPcBot':
         kwargs = await get_dict(**call.from_user.values)
-        host = await db.get_user_server(**kwargs)
+        host = await db.get_user_server(**kwargs) + '/wake_up'
+        if host == '':
+            await call.message.answer(f"You haven't server yet")
+            return
         data = await send_packet(url=host, data={'mac': mac})
         if data:
             await call.message.answer(f'Computer <i><b>"{name}"</b></i> wake up')
         else:
-            logging.error("some err")
+            mess = (
+                "Error\nIt can be called because of:\n"
+                "1. Incorrect server address\n"
+                "2. Server discard connection\n"
+                "3. Incorrect answer "
+                "(<a href='https://github.com/AlexandrVino/TurnPCBot/blob/master/README.md#server'>"
+                "see it for more info</a>)"
+            )
+            await call.message.answer(mess, disable_web_page_preview=True)
     else:
         send_magic_packet(mac)
 
