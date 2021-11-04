@@ -12,5 +12,5 @@ async def bot_start(message: types.Message):
     :returns: None
     function, which will register new user
     """
-    await db.get_user_or_create(**message.from_user.values)
+    await db.get_user_or_create(**await get_dict(**message.from_user.values))
     await message.answer(f"Hi, {message.from_user.full_name}!")
