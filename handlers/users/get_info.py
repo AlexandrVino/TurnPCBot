@@ -16,7 +16,7 @@ async def get_info(message: types.Message) -> types.Message.answer:
     """
 
     user_data = await db.get_user_or_create(**await get_dict(**message.from_user.values))
-    computers = json.loads(user_data.get('computers'))
+    computers = json.loads(user_data.get('computers') if user_data.get('computers') is not None else '[]')
     server = user_data.get('server')
 
     if computers:
