@@ -1,6 +1,5 @@
 # TurnPCBot
 # https://youtu.be/v1ew67ZzwTQ
-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
 
 <!-- PROJECT LOGO -->
 <br />
